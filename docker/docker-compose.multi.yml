@@ -1,0 +1,73 @@
+version: "3.9"
+services:
+  server:
+    build: ./server
+    volumes:
+      - ../:/go/src/github.com/edge/edge-server
+    working_dir: /go/src/github.com/edge/edge-server
+    command: go run main.go -edge edgeP
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    networks:
+      app_net:
+        ipv4_address: 192.168.0.3
+        aliases:
+          - edgeP
+      localhost_p:
+  db:
+    image: mongo:3.4-xenial
+    networks:
+      localhost_p:
+        aliases:
+          - mongo
+    ports:
+      - "27017:27017"
+  mongo-express:
+    image: mongo-express
+    ports:
+      - "8081:8081"
+    networks:
+      localhost_p:
+
+  server_q:
+    image: docker_server
+    volumes:
+      - ../:/go/src/github.com/edge/edge-server
+    working_dir: /go/src/github.com/edge/edge-server/
+    command: go run main.go -edge edgeQ
+    depends_on:
+      - db_q
+    ports:
+      - "3001:3000"
+    networks:
+      app_net:
+        ipv4_address: 192.168.0.4
+        aliases:
+          - edgeQ
+      localhost_q:
+  db_q:
+    ports:
+     - "27018:27017"
+    image: mongo:3.4-xenial
+    networks:
+      localhost_q:
+        aliases:
+          - db
+          - mongo
+  mongo-express_q:
+    image: mongo-express
+    ports:
+      - "8082:8081"
+    networks:
+      localhost_q:
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.0.0/24
+  localhost_p:
+  localhost_q:

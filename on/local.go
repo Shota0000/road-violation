@@ -32,6 +32,7 @@ func (lo *Local) Init() (err error) {
 
 	// MongoDB
 	mdb, err := db.NewMongoDB(
+		//ここlocalhostにすればいけるのでは?
 		[]string{"db:27017"},
 		10*time.Second,
 		"edge-local",
